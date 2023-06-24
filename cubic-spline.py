@@ -90,9 +90,9 @@ def main():
     plt.scatter(x, y)
 
     new_points = points
-    for _ in range(3):
+    for _ in range(2):
         new_points = refine_step(new_points).copy()
-        plt.scatter(new_points[:, 0], new_points[:, 1])
+    plt.scatter(new_points[:, 0], new_points[:, 1])
 
     plt.show()
 
