@@ -67,21 +67,35 @@ def refine_step(points: NDArray) -> NDArray:
     odd_points = circular_convolve(points, odd_kernel(N))
     new_points = np.zeros((2 * N, d))
     new_points[0::2] = even_points
+    odd_points = np.roll(odd_points, -1, axis=0)
     new_points[1::2] = odd_points
     return new_points
 
 
-if __name__ == "__main__":
+def main():
     import matplotlib.pyplot as plt
 
-    N = 5
-    t = np.linspace(0, 2 * np.pi, N, endpoint=False)
-    x = np.cos(t)
-    y = np.sin(t)
+    points = np.array([
+        [-1, 1],
+        [-0.5, 0.75],
+        [0.5, 0.75],
+        [1, 1],
+        [0, -1]
+    ])
+    # t = np.linspace(0, 2 * np.pi, 3, endpoint=False)
+    # points = np.array([np.cos(t), np.sin(t)]).T
 
+    x = points[:, 0]
+    y = points[:, 1]
     plt.scatter(x, y)
 
-    points = np.stack((x, y), axis=1)
-    new_points = refine_step(points)
-    plt.scatter(new_points[:, 0], new_points[:, 1])
+    new_points = points
+    for _ in range(3):
+        new_points = refine_step(new_points).copy()
+        plt.scatter(new_points[:, 0], new_points[:, 1])
+
     plt.show()
+
+if __name__ == "__main__":
+    main()
+
