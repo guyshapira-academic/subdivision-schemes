@@ -4,6 +4,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 from scipy import linalg
+from scipy import spatial
+
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
 
 def matrix_log(A: NDArray) -> NDArray:
@@ -120,20 +124,91 @@ def spd_average(matrices: NDArray, weights: NDArray) -> NDArray:
         return binary_spd_average(np.array([term_1, term_2]), weights[-1])
 
 
+def spd_circle(n: int) -> NDArray:
+    """
+    Generates a circle of SPD matrices.
+
+    Parameters:
+        n: Number of matrices to generate.
+
+    Returns:
+        The generated SPD matrices. shape: (n, 3, 3)
+        Coordinates of the generated matrices. shape: (n, 6)
+    """
+    # Generate the coordinates.
+    coords = np.zeros((n, 6))
+    coords[:, 0] = 0
+    coords[:, 1] = np.sin(np.linspace(0, 2 * np.pi, n))
+    coords[:, 2] = np.cos(np.linspace(0, 2 * np.pi, n))
+    coords[:, 3] = 0
+    coords[:, 4] = 0
+    coords[:, 5] = 0
+
+    # Random 6 x 6 matrix.
+    random_matrix = np.random.rand(6, 6)
+    coords = coords @ random_matrix
+
+    # Convert to SPD matrices.
+    matrices = coordinates_to_matrices(coords)
+
+
+    return matrices, coords
+
+
+def refinement_step(x: NDArray) -> NDArray:
+    """Refinement step for the SPD matrices.
+
+    Parameters:
+        x: Input SPD matrices. shape: (N, 3, 3)
+
+    Returns:
+        The refined SPD matrices. shape: (N, 3, 3)
+    """
+    # Get the number of samples.
+    N = x.shape[0]
+
+    refined_data = np.zeros((2*N, 3, 3))
+
+    for i in range(N):
+        # Even indices.
+        refined_data[2 * i, :, :] = spd_average(x[[i-2, i-1, i]], np.array([1/8, 3/4, 1/8]))
+        # Odd indices.
+        refined_data[2 * i + 1, :, :] = spd_average(x[[i-1, i]], np.array([1/2, 1/2]))
+
+    return refined_data
+
+
+def main():
+    N = 10
+
+    # Generate matrices
+    matrices, coords = spd_circle(N)
+
+    matrices_refined = matrices
+    for i in range(2):
+        matrices_refined = refinement_step(matrices_refined)
+
+    ax = plt.axes(projection="3d")
+
+    for i, color in enumerate(["red", "green", "blue"]):
+        curve_coordinates = matrices[:, :, i]
+        x = curve_coordinates[:, 0]
+        y = curve_coordinates[:, 1]
+        z = curve_coordinates[:, 2]
+        ax.scatter3D(x, y, z, c=color, marker="X")
+        ax.plot3D(x, y, z, color, linewidth=0.25, linestyle="--")
+
+    for i, color in enumerate(["red", "green", "blue"]):
+        curve_coordinates = matrices_refined[:, :, i]
+        x = curve_coordinates[:, 0]
+        y = curve_coordinates[:, 1]
+        z = curve_coordinates[:, 2]
+        ax.scatter3D(x, y, z, c=color, marker=".")
+        ax.plot3D(x, y, z, c=color, linewidth=1)
+
+
+    plt.show()
+
+
 if __name__ == "__main__":
-    # Test the SPD average.
-
-    # Create multiple SPD matrices.
-    matrices = np.random.randn(10, 3, 3)
-    matrices = np.matmul(matrices, np.transpose(matrices, (0, 2, 1)))
-    matrices = linalg.expm(matrices)
-
-    # Calculate the average.
-    weights = np.random.rand(10)
-    average = spd_average(matrices, weights)
-
-    # Check if the average is SPD.
-    print(np.all(linalg.eigvals(average) > 0))
-
-    print(average)
-
+    main()
