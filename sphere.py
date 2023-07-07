@@ -162,7 +162,7 @@ def main():
 
     ax.view_init(elev=35, azim=30, roll=0)
     ax.legend()
-
+    plt.savefig("sphere.png")
     plt.show()
 
 

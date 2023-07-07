@@ -99,6 +99,7 @@ def main():
         new_points = refine_step(new_points).copy()
     plt.plot(new_points[:, 0], new_points[:, 1], c="black", linewidth=1, linestyle="-", label="refined-10")
     plt.legend()
+    plt.savefig("cubic-spline.png")
     plt.show()
 
 

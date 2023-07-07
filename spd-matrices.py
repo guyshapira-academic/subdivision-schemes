@@ -205,6 +205,7 @@ def main():
         ax.scatter3D(x, y, z, c=color, marker=".", label=f"refined-{i}")
         ax.plot3D(x, y, z, c=color, linewidth=1)
     ax.legend()
+    plt.savefig("spd.png")
     plt.show()
 
 
