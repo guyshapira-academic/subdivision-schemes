@@ -1,13 +1,9 @@
-from typing import Iterable
-
 import numpy as np
 from numpy.typing import NDArray
 
 from scipy import linalg
-from scipy import spatial
 
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
 
 
 def matrix_log(A: NDArray) -> NDArray:
@@ -151,7 +147,6 @@ def spd_circle(n: int) -> NDArray:
     # Convert to SPD matrices.
     matrices = coordinates_to_matrices(coords)
 
-
     return matrices, coords
 
 
@@ -167,13 +162,17 @@ def refinement_step(x: NDArray) -> NDArray:
     # Get the number of samples.
     N = x.shape[0]
 
-    refined_data = np.zeros((2*N, 3, 3))
+    refined_data = np.zeros((2 * N, 3, 3))
 
     for i in range(N):
         # Even indices.
-        refined_data[2 * i, :, :] = spd_average(x[[i-2, i-1, i]], np.array([1/8, 3/4, 1/8]))
+        refined_data[2 * i, :, :] = spd_average(
+            x[[i - 2, i - 1, i]], np.array([1 / 8, 3 / 4, 1 / 8])
+        )
         # Odd indices.
-        refined_data[2 * i + 1, :, :] = spd_average(x[[i-1, i]], np.array([1/2, 1/2]))
+        refined_data[2 * i + 1, :, :] = spd_average(
+            x[[i - 1, i]], np.array([1 / 2, 1 / 2])
+        )
 
     return refined_data
 
@@ -195,7 +194,7 @@ def main():
         x = curve_coordinates[:, 0]
         y = curve_coordinates[:, 1]
         z = curve_coordinates[:, 2]
-        ax.scatter3D(x, y, z, c=color, marker="X")
+        ax.scatter3D(x, y, z, c=color, marker="X", label=f"original-{i}")
         ax.plot3D(x, y, z, color, linewidth=0.25, linestyle="--")
 
     for i, color in enumerate(["red", "green", "blue"]):
@@ -203,10 +202,9 @@ def main():
         x = curve_coordinates[:, 0]
         y = curve_coordinates[:, 1]
         z = curve_coordinates[:, 2]
-        ax.scatter3D(x, y, z, c=color, marker=".")
+        ax.scatter3D(x, y, z, c=color, marker=".", label=f"refined-{i}")
         ax.plot3D(x, y, z, c=color, linewidth=1)
-
-
+    ax.legend()
     plt.show()
 
 

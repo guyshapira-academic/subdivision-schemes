@@ -2,6 +2,8 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy import fft
 
+import matplotlib.pyplot as plt
+
 
 def circular_convolve(x: NDArray, y: NDArray) -> NDArray:
     """Circular convolution of x and y.
@@ -75,13 +77,7 @@ def refine_step(points: NDArray) -> NDArray:
 def main():
     import matplotlib.pyplot as plt
 
-    points = np.array([
-        [-1, 1],
-        [-0.5, 0.75],
-        [0.5, 0.75],
-        [1, 1],
-        [0, -1]
-    ])
+    points = np.array([[-1, 1], [-0.5, 0.75], [0.5, 0.75], [1, 1], [0, -1]])
     # t = np.linspace(0, 2 * np.pi, 3, endpoint=False)
     # points = np.array([np.cos(t), np.sin(t)]).T
 
@@ -90,12 +86,17 @@ def main():
     plt.scatter(x, y)
 
     new_points = points
-    for _ in range(2):
-        new_points = refine_step(new_points).copy()
-    plt.scatter(new_points[:, 0], new_points[:, 1])
+    points_ = np.concatenate([points, points[[0], :]], axis=0)
+    plt.scatter(points_[:, 0], points_[:, 1], c="r", marker="x", label="original")
+    plt.plot(points_[:, 0], points_[:, 1], c="r", linewidth=0.25, linestyle="--")
 
+    for _ in range(5):
+        new_points = refine_step(new_points).copy()
+    plt.scatter(new_points[:, 0], new_points[:, 1], c="b", marker=".", label="refined")
+    plt.plot(new_points[:, 0], new_points[:, 1], c="b", linewidth=1, linestyle="-")
+    plt.legend()
     plt.show()
+
 
 if __name__ == "__main__":
     main()
-
